@@ -1,276 +1,421 @@
-## 1. SELECT
+# HW4. SELECT + JOIN
 
-### 1.1. Выборка всех данных из таблицы
+## 1. Выборка всех данных из таблицы
 
-**Запрос 1.** Вывести все книги.
+### 1.1. Получить все данные о книгах.
+
 ```sql
 SELECT * FROM books;
 ```
 
-**Запрос 2.** Вывести всех покупателей.
+![img.png](img/1.png)
+
+### 1.2. Получить все данные о клиентах.
+
 ```sql
 SELECT * FROM customers;
 ```
 
-### 1.2. Выборка отдельных столбцов
+![img.png](img/2.png)
 
-**Запрос 1.** Вывести названия и цены книг.
+
+## 2. Выборка отдельных столбцов
+
+### 2.1. Получить названия и цены всех книг.
+
 ```sql
 SELECT title, price FROM books;
 ```
 
-**Запрос 2.** Вывести идентификаторы и названия категорий.
+![img.png](img/3.png)
+
+
+### 2.2. Получить имена, фамилии и страны авторов.
+
 ```sql
-SELECT id, name FROM categories;
+SELECT first_name, last_name, country FROM authors;
 ```
 
-### 1.3. Присвоение новых имен столбцам (AS)
+![img.png](img/4.png)
 
-**Запрос 1.** Переименовать столбцы названия и цены книги.
+
+## 3. Присвоение новых имен столбцам
+
+### 3.1. Вывести названия книг и цены с понятными названиями столбцов.
+
 ```sql
 SELECT title AS book_title, price AS book_price FROM books;
 ```
 
-**Запрос 2.** Переименовать столбцы покупателей.
+![img.png](img/5.png)
+
+
+### 3.2. Вывести имена и электронные адреса покупателей, переименовав столбцы.
+
 ```sql
-SELECT id AS customer_id, first_name AS customer_first_name,
-       last_name AS customer_last_name
-FROM customers;
+SELECT first_name AS customer_name, email AS customer_email FROM customers;
 ```
 
-### 1.4. Выборка с вычисляемым столбцом
+![img.png](img/6.png)
 
-**Запрос 1.** Рассчитать стоимость двух экземпляров каждой книги.
+
+## 4. Выборка с вычисляемым столбцом
+
+### 4.1. Посчитать стоимость всех экземпляров каждой книги на складе.
+
 ```sql
-SELECT title, price, price * 2 AS price_for_two
+SELECT title, price, stock_quantity, price * stock_quantity AS stock_value
 FROM books;
 ```
 
-**Запрос 2.** Рассчитать стоимость каждой позиции заказа.
+![img.png](img/7.png)
+
+
+### 4.2. Посчитать стоимость каждой позиции заказа.
+
 ```sql
-SELECT order_id, book_id, quantity, price,
-       quantity * price AS item_total
+SELECT order_id, book_id, quantity, price, quantity * price AS item_total
 FROM order_items;
 ```
 
-### 1.5. Вычисляемые столбцы: математические функции
+![img.png](img/8.png)
 
-**Запрос 1.** Округлить цены книг до целого.
+
+## 5. Вычисляемые столбцы и математические функции
+
+### 5.1. Вывести цену каждой книги с учетом скидки 10%, округлив до двух знаков.
+
 ```sql
-SELECT title, price, ROUND(price, 0) AS rounded_price
+SELECT title, price, ROUND(price * 0.90, 2) AS discounted_price
 FROM books;
 ```
 
-**Запрос 2.** Вычислить квадратный корень из цены книги.
+![img.png](img/9.png)
+
+
+### 5.2. Посчитать цену книги за вычетом 20% НДС, округлив до двух знаков.
+
 ```sql
-SELECT title, price, SQRT(price) AS price_sqrt
+SELECT title, price, ROUND(price / 1.20, 2) AS price_without_vat
+FROM books;
+```
+
+![img.png](img/10.png)
+
+
+## 6. Вычисляемые столбцы и логические функции (CASE)
+
+### 6.1. Разделить книги на дорогие и недорогие по порогу 1000 рублей.
+
+```sql
+SELECT title, price,
+       CASE WHEN price > 1000 THEN 'Дорогая' ELSE 'Недорогая' END AS price_group
+FROM books;
+```
+
+![img.png](img/11.png)
+
+
+### 6.2. Определить уровень запаса книг: меньше 10 экземпляров — мало, иначе достаточно.
+
+```sql
+SELECT title, stock_quantity,
+       CASE WHEN stock_quantity < 10 THEN 'Мало' ELSE 'Достаточно' END AS stock_status
+FROM books;
+```
+
+![img.png](img/12.png)
+
+
+## 7. Выборка данных по условию (WHERE)
+
+### 7.1. Найти книги стоимостью больше 1000 рублей.
+
+```sql
+SELECT title, price FROM books WHERE price > 1000;
+```
+
+![img.png](img/13.png)
+
+
+### 7.2. Найти заказы со статусом «Оплачен».
+
+```sql
+SELECT id, order_date, total_amount FROM orders WHERE status = 'Оплачен';
+```
+
+![img.png](img/14.png)
+
+
+## 8. Выборка данных с логическими операциями
+
+### 8.1. Найти книги дороже 1000 рублей, которых на складе не меньше 10.
+
+```sql
+SELECT title, price, stock_quantity
 FROM books
-WHERE price >= 0;
+WHERE price > 1000 AND stock_quantity >= 10;
 ```
 
-### 1.6. Вычисляемые столбцы: логические функции (CASE)
+![img.png](img/15.png)
 
-**Запрос 1.** Разделить книги на недорогие и дорогие.
+
+### 8.2. Найти клиентов из Казани или Москвы.
+
 ```sql
-SELECT title, price,
-       CASE WHEN price < 1000 THEN 'Недорогая'
-            ELSE 'Дорогая' END AS price_group
-FROM books;
+SELECT first_name, last_name, address
+FROM customers
+WHERE address = 'Казань' OR address = 'Москва';
 ```
 
-**Запрос 2.** Назначить скидку в зависимости от цены.
+![img.png](img/16.png)
+
+
+## 9. Выборка данных с BETWEEN и IN
+
+### 9.1. Найти книги по цене от 900 до 1200 рублей включительно.
+
 ```sql
-SELECT title, price,
-       CASE WHEN price >= 1500 THEN price * 0.90
-            ELSE price * 0.95 END AS discounted_price
-FROM books;
+SELECT title, price FROM books WHERE price BETWEEN 900 AND 1200;
 ```
 
-### 1.7. Выборка данных по условию (WHERE)
+![img.png](img/17.png)
 
-**Запрос 1.** Найти книги дешевле 1000.
+
+### 9.2. Найти заказы со статусами «Новый» или «Оплачен».
+
 ```sql
-SELECT title, price FROM books WHERE price < 1000;
+SELECT id, status, total_amount FROM orders
+WHERE status IN ('Новый', 'Оплачен');
 ```
 
-**Запрос 2.** Найти книги дороже 1200.
+![img.png](img/18.png)
+
+
+## 10. Выборка данных с сортировкой (ORDER BY)
+
+### 10.1. Отсортировать книги по убыванию цены.
+
 ```sql
-SELECT title, price FROM books WHERE price > 1200;
+SELECT title, price FROM books ORDER BY price DESC;
 ```
 
-### 1.8. Выборка данных: логические операции
+![img.png](img/19.png)
 
-**Запрос 1.** Найти книги с ценой от 500 до 1500, не включая границы.
+
+### 10.2. Отсортировать авторов по фамилии, затем по имени.
+
 ```sql
-SELECT title, price FROM books
-WHERE price > 500 AND price < 1500;
+SELECT first_name, last_name FROM authors
+ORDER BY last_name ASC, first_name ASC;
 ```
 
-**Запрос 2.** Найти книги дешевле 1000 или с остатком менее 10 штук.
+![img.png](img/20.png)
+
+
+## 11. Выборка данных с LIKE
+
+### 11.1. Найти книги, название которых начинается на «В».
+
 ```sql
-SELECT title, price FROM books
-WHERE price < 1000 OR stock_quantity < 10;
+SELECT title FROM books WHERE title LIKE 'В%';
 ```
 
-### 1.9. Операторы BETWEEN, IN
+![img.png](img/21.png)
 
-**Запрос 1.** Найти книги в диапазоне цен от 900 до 1200 включительно.
+
+### 11.2. Найти клиентов, у которых почта заканчивается на example.com.
+
 ```sql
-SELECT title, price FROM books
-WHERE price BETWEEN 900 AND 1200;
+SELECT first_name, last_name, email FROM customers
+WHERE email LIKE '%@example.com';
 ```
 
-**Запрос 2.** Найти книги из категорий с идентификаторами 1, 2 или 3.
+![img.png](img/22.png)
+
+
+## 12. Выбор уникальных значений (DISTINCT)
+
+### 12.1. Получить уникальные страны авторов.
+
 ```sql
-SELECT title, category_id FROM books
-WHERE category_id IN (1, 2, 3);
+SELECT DISTINCT country FROM authors;
 ```
 
-### 1.10. Выборка данных с сортировкой (ORDER BY)
+![img.png](img/23.png)
 
-**Запрос 1.** Отсортировать книги по цене по возрастанию.
+
+### 12.2. Получить уникальные статусы заказов.
+
 ```sql
-SELECT title, price FROM books ORDER BY price ASC;
+SELECT DISTINCT status FROM orders;
 ```
 
-**Запрос 2.** Отсортировать книги по цене по убыванию, затем по названию.
+![img.png](img/24.png)
+
+
+## 13. Ограничение количества строк (LIMIT / OFFSET)
+
+### 13.1. Вывести две самые дорогие книги.
+
 ```sql
-SELECT title, price FROM books ORDER BY price DESC, title ASC;
+SELECT title, price FROM books ORDER BY price DESC LIMIT 2;
 ```
 
-### 1.11. Оператор LIKE
+![img.png](img/25.png)
 
-**Запрос 1.** Найти книги, названия которых начинаются на цифру «1».
+
+### 13.2. Пропустить первую книгу по алфавиту и вывести следующие две.
+
 ```sql
-SELECT title FROM books WHERE title LIKE '1%';
+SELECT title, price FROM books ORDER BY title ASC LIMIT 2 OFFSET 1;
 ```
 
-**Запрос 2.** Найти книги, в названии которых встречается слово «мир» (без учета регистра).
+![img.png](img/26.png)
+
+
+## 14. INNER JOIN
+
+### 14.1. Вывести книги и имена их авторов.
+
 ```sql
-SELECT title FROM books WHERE title ILIKE '%мир%';
-```
-
-### 1.12. Выбор уникальных элементов столбца (DISTINCT)
-
-**Запрос 1.** Вывести уникальные идентификаторы авторов, у которых есть книги.
-```sql
-SELECT DISTINCT author_id FROM books;
-```
-
-**Запрос 2.** Вывести уникальные идентификаторы категорий книг.
-```sql
-SELECT DISTINCT category_id FROM books;
-```
-
-### 1.13. Ограничение количества строк (LIMIT / OFFSET)
-
-**Запрос 1.** Вывести три самые дешевые книги.
-```sql
-SELECT title, price FROM books ORDER BY price ASC LIMIT 3;
-```
-
-**Запрос 2.** Пропустить первую книгу и вывести следующие две.
-```sql
-SELECT id, title FROM books ORDER BY id LIMIT 2 OFFSET 1;
-```
-
-## 2. JOIN
-
-### 2.1. INNER JOIN
-
-**Запрос 1.** Вывести книги вместе с их авторами.
-```sql
-SELECT b.title, a.first_name || ' ' || a.last_name AS author_name
+SELECT b.title, a.first_name, a.last_name
 FROM books AS b
 INNER JOIN authors AS a ON b.author_id = a.id;
 ```
 
-**Запрос 2.** Вывести книги вместе с их категориями.
+![img.png](img/27.png)
+
+
+### 14.2. Вывести номера заказов и имена клиентов, которые их оформили.
+
 ```sql
-SELECT b.title, c.name AS category_name
-FROM books AS b
-INNER JOIN categories AS c ON b.category_id = c.id;
+SELECT o.id AS order_id, c.first_name, c.last_name
+FROM orders AS o
+INNER JOIN customers AS c ON o.customer_id = c.id;
 ```
 
-### 2.2. LEFT JOIN
+![img.png](img/28.png)
 
-**Запрос 1.** Вывести всех авторов, включая авторов без книг.
+
+## 15. LEFT JOIN
+
+### 15.1. Вывести все категории и книги, которые к ним относятся (в том числе категории без книг).
+
 ```sql
-SELECT a.first_name || ' ' || a.last_name AS author_name, b.title
-FROM authors AS a
-LEFT JOIN books AS b ON b.author_id = a.id;
+SELECT c.name AS category_name, b.title
+FROM categories AS c
+LEFT JOIN books AS b ON b.category_id = c.id;
 ```
 
-**Запрос 2.** Вывести всех покупателей, включая тех, кто не оформлял заказов.
+![img.png](img/29.png)
+
+
+### 15.2. Вывести всех клиентов и номера их заказов (в том числе клиентов без заказов).
+
 ```sql
-SELECT c.first_name || ' ' || c.last_name AS customer_name, o.id AS order_id
+SELECT c.first_name, c.last_name, o.id AS order_id
 FROM customers AS c
 LEFT JOIN orders AS o ON o.customer_id = c.id;
 ```
 
-### 2.3. RIGHT JOIN
+![img.png](img/30.png)
 
-**Запрос 1.** Вывести все категории, даже если в них нет книг.
+
+## 16. RIGHT JOIN
+
+### 16.1. Вывести все категории и их книги, включая категории без книг.
+
 ```sql
-SELECT b.title, c.name AS category_name
+SELECT c.name AS category_name, b.title
 FROM books AS b
 RIGHT JOIN categories AS c ON b.category_id = c.id;
 ```
 
-**Запрос 2.** Вывести всех авторов, даже если у них нет книг.
+![img.png](img/31.png)
+
+
+### 16.2. Вывести всех авторов и их книги, включая авторов без книг.
+
 ```sql
-SELECT b.title, a.first_name || ' ' || a.last_name AS author_name
+SELECT a.first_name, a.last_name, b.title
 FROM books AS b
 RIGHT JOIN authors AS a ON b.author_id = a.id;
 ```
 
-### 2.4. CROSS JOIN
+![img.png](img/32.png)
 
-**Запрос 1.** Получить все возможные сочетания авторов и категорий.
+
+## 17. CROSS JOIN
+
+### 17.1. Получить все возможные пары книг и категорий.
+
 ```sql
-SELECT a.first_name || ' ' || a.last_name AS author_name, c.name AS category_name
-FROM authors AS a
+SELECT b.title, c.name AS category_name
+FROM books AS b
 CROSS JOIN categories AS c;
 ```
 
-**Запрос 2.** Получить все возможные сочетания покупателей и категорий.
+![img.png](img/33.png)
+
+
+### 17.2. Получить все возможные пары клиентов и статусов из имеющихся заказов.
+
 ```sql
-SELECT cu.first_name || ' ' || cu.last_name AS customer_name, ca.name AS category_name
-FROM customers AS cu
-CROSS JOIN categories AS ca;
+SELECT c.first_name, c.last_name, s.status
+FROM customers AS c
+CROSS JOIN (SELECT DISTINCT status FROM orders) AS s;
 ```
 
-### 2.5. FULL OUTER JOIN
+![img.png](img/34.png)
 
-**Запрос 1.** Вывести всех авторов и все книги, включая записи без пары.
-```sql
-SELECT a.first_name || ' ' || a.last_name AS author_name, b.title
-FROM authors AS a
-FULL OUTER JOIN books AS b ON b.author_id = a.id;
-```
 
-**Запрос 2.** Вывести все категории и все книги, включая записи без пары.
+## 18. FULL OUTER JOIN
+
+### 18.1. Вывести все категории и книги, сохраняя несовпадающие строки с обеих сторон.
+
 ```sql
 SELECT c.name AS category_name, b.title
 FROM categories AS c
 FULL OUTER JOIN books AS b ON b.category_id = c.id;
 ```
 
-### 2.6. Соединение нескольких таблиц
+![img.png](img/35.png)
 
-**Запрос 1.** Вывести название книги, автора и категорию.
+
+### 18.2. Вывести всех клиентов и все заказы, даже если соответствия нет.
+
 ```sql
-SELECT b.title, a.first_name || ' ' || a.last_name AS author_name, c.name AS category_name
-FROM books AS b
-INNER JOIN authors AS a ON b.author_id = a.id
-INNER JOIN categories AS c ON b.category_id = c.id;
+SELECT c.first_name, c.last_name, o.id AS order_id
+FROM customers AS c
+FULL OUTER JOIN orders AS o ON o.customer_id = c.id;
 ```
 
-**Запрос 2.** Вывести покупателя, номер заказа и названия заказанных книг.
+![img.png](img/36.png)
+
+
+## 19. Соединение нескольких таблиц
+
+### 19.1. Вывести клиентов и названия купленных ими книг.
+
 ```sql
-SELECT c.first_name || ' ' || c.last_name AS customer_name, o.id AS order_id, b.title
+SELECT c.first_name, c.last_name, b.title
 FROM customers AS c
 INNER JOIN orders AS o ON o.customer_id = c.id
 INNER JOIN order_items AS oi ON oi.order_id = o.id
 INNER JOIN books AS b ON b.id = oi.book_id;
 ```
+
+![img.png](img/37.png)
+
+
+### 19.2. Вывести названия книг, авторов и категории.
+
+```sql
+SELECT b.title, a.first_name, a.last_name, c.name AS category_name
+FROM books AS b
+INNER JOIN authors AS a ON a.id = b.author_id
+INNER JOIN categories AS c ON c.id = b.category_id;
+```
+
+![img.png](img/38.png)
